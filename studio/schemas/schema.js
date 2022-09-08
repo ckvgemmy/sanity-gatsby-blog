@@ -1,4 +1,3 @@
-// First, we must import the schema creator
 import createSchema from "part:@sanity/base/schema-creator";
 
 // Then import schema types from any plugins that might expose them
@@ -9,6 +8,7 @@ import author from "./documents/author";
 import category from "./documents/category";
 import post from "./documents/post";
 import siteSettings from "./documents/siteSettings";
+import postFeatured from "./documents/postFeatured";
 
 // Object types
 import bodyPortableText from "./objects/bodyPortableText";
@@ -30,6 +30,7 @@ export default createSchema({
     post,
     category,
     author,
+    postFeatured,
     mainImage,
     authorReference,
     bodyPortableText,
