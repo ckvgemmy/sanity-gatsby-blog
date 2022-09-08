@@ -1,5 +1,7 @@
+import {useEffect, useState} from "react";
 import React from "react";
-import { graphql } from "gatsby";
+import { graphql, useStaticQuery } from "gatsby";
+import { request, gql } from "graphql-request";
 import {
   filterOutDocsPublishedInTheFuture,
   filterOutDocsWithoutSlugs,
@@ -10,6 +12,11 @@ import Container from "../components/container";
 import GraphQLErrorList from "../components/graphql-error-list";
 import SEO from "../components/seo";
 import Layout from "../containers/layout";
+import { QueryClient, QueryClientProvider, useQuery } from 'react-query'
+import sanityClient from "@sanity/client";
+import useSWR from 'swr'
+
+const queryClient = new QueryClient()
 
 export const query = graphql`
   fragment SanityImage on SanityMainImage {
@@ -64,8 +71,63 @@ export const query = graphql`
   }
 `;
 
-const IndexPage = (props) => {
-  const { data, errors } = props;
+const client = sanityClient({
+  projectId: "w2bhjevw",
+  dataset: "production",
+  useCdn: true
+});
+
+// const endpoint = "https://w2bhjevw.api.sanity.io/v1/graphql/production/default";
+/*const FEATURED_QUERY = `
+  allSanityPostFeatured {
+    edges {
+      node {
+        title
+      }
+    }
+  }
+`;*/
+
+const FEATURED_QUERY = encodeURIComponent('*[_type == "postFeatured"]{title}')
+const endpoint = `https://w2bhjevw.api.sanity.io/v1/data/query/production?query=${FEATURED_QUERY}`;
+
+const IndexPage =   function(props) {
+  /*const { dataFeatured, isLoading, error } = useQuery("allSanityPostFeatured", () => {
+    return fetch(endpoint, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ query: FEATURED_QUERY })
+    })
+      .then((response) => {
+        if (response.status >= 400) {
+          throw new Error("Error fetching data");
+        } else {
+          return response.json();
+        }
+      })
+      .then((dataFeatured) => dataFeatured.data);
+  });*/
+
+  /*const { dataFeatured, isLoading, error } = useQuery("launches", () => {
+    return request(endpoint, FEATURED_QUERY);
+  });
+
+  console.log(dataFeatured)*/
+/*  const fetcher = (args) => fetch(...args).then(res => res.json())
+  const { dataFeatured, error } = useSWR(endpoint, fetcher);*/
+  const [featuredData, setFeaturedData] = useState(0);
+
+  useEffect(() => {
+    async function getData() {
+      const result = await Promise.resolve(fetch(endpoint).then(res => res.json()));
+      setFeaturedData(result);
+    }
+    getData();
+  }, []);
+
+  console.log(featuredData.result)
+  const { data, errors } =  props;
+  console.log(data)
 
   if (errors) {
     return (
@@ -95,6 +157,9 @@ const IndexPage = (props) => {
         description={site.description}
         keywords={site.keywords}
       />
+      {featuredData && featuredData.result.map(d => {
+        return <div>{d.title}</div>
+      })}
       <Container>
         <h1 hidden>Welcome to {site.title}</h1>
         {postNodes && (
@@ -106,7 +171,7 @@ const IndexPage = (props) => {
         )}
       </Container>
     </Layout>
-  );
-};
+  )
+}
 
-export default IndexPage;
+export default IndexPage
