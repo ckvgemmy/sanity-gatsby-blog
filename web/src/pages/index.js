@@ -1,7 +1,6 @@
 import {useEffect, useState} from "react";
 import React from "react";
-import { graphql, useStaticQuery } from "gatsby";
-import { request, gql } from "graphql-request";
+import { graphql } from "gatsby";
 import {
   filterOutDocsPublishedInTheFuture,
   filterOutDocsWithoutSlugs,
@@ -12,11 +11,7 @@ import Container from "../components/container";
 import GraphQLErrorList from "../components/graphql-error-list";
 import SEO from "../components/seo";
 import Layout from "../containers/layout";
-import { QueryClient, QueryClientProvider, useQuery } from 'react-query'
 import sanityClient from "@sanity/client";
-import useSWR from 'swr'
-
-const queryClient = new QueryClient()
 
 export const query = graphql`
   fragment SanityImage on SanityMainImage {
