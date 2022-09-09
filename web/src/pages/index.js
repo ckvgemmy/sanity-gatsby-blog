@@ -12,6 +12,7 @@ import GraphQLErrorList from "../components/graphql-error-list";
 import SEO from "../components/seo";
 import Layout from "../containers/layout";
 import sanityClient from "@sanity/client";
+import FuturePostPreviewList from "../components/future-post-preview-list";
 
 export const query = graphql`
   fragment SanityImage on SanityMainImage {
@@ -83,7 +84,7 @@ const client = sanityClient({
   }
 `;*/
 
-const FEATURED_QUERY = encodeURIComponent('*[_type == "postFeatured"]{title}')
+const FEATURED_QUERY = encodeURIComponent('*[_type == "postFeatured"]{title, _rawExcerpt, mainImage, _id}')
 const endpoint = `https://w2bhjevw.api.sanity.io/v1/data/query/production?query=${FEATURED_QUERY}`;
 
 const IndexPage =   function(props) {
@@ -120,9 +121,8 @@ const IndexPage =   function(props) {
     getData();
   }, []);
 
-  console.log(featuredData.result)
+  console.log(featuredData)
   const { data, errors } =  props;
-  console.log(data)
 
   if (errors) {
     return (
@@ -152,9 +152,6 @@ const IndexPage =   function(props) {
         description={site.description}
         keywords={site.keywords}
       />
-      {featuredData && featuredData.result.map(d => {
-        return <div>{d.title}</div>
-      })}
       <Container>
         <h1 hidden>Welcome to {site.title}</h1>
         {postNodes && (
@@ -164,6 +161,10 @@ const IndexPage =   function(props) {
             browseMoreHref="/archive/"
           />
         )}
+        {featuredData && (
+          <FuturePostPreviewList
+          title="New blog posts coming soon in 2023!"
+          nodes={featuredData}/>)}
       </Container>
     </Layout>
   )
